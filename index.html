@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lambo Drive: Ultimate City Simulation</title>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="assets/car.css" />
+  </head>
+  <body>
+    <!-- Sound Onboarding Screen -->
+    <div id="sound-onboarding">
+      <div class="onboard-title">LAMBORGHINI DYNAMICS</div>
+      <div class="onboard-desc">
+        Welcome to the ultimate city driving experience.<br />
+        This application utilizes synthesized engine acoustics and tyre
+        screeching audio.
+      </div>
+      <button class="btn-onboard" onclick="startWithSound(true)">
+        START EXPERIENCE WITH AUDIO
+      </button>
+      <div class="skip-onboard" onclick="startWithSound(false)">
+        Mute and Continue
+      </div>
+    </div>
+
+    <!-- HUD Layout -->
+    <div id="hud-container">
+      <!-- Top info bar -->
+      <div id="top-bar">
+        <div class="logo">LAMBO<span>DYNAMICS</span></div>
+        <div class="controls-info">
+          <span>WASD / Arrows: Drive</span>
+          <span>SHIFT: Nitro Boost</span>
+          <span>SPACE: Handbrake Drift</span>
+          <span>C: Switch View</span>
+        </div>
+      </div>
+
+      <!-- Dashboard HUD overlay -->
+      <div id="dashboard">
+        <!-- Left panel: Engine and modes -->
+        <div class="dash-panel left-panel" id="panel-left">
+          <div class="engine-start-wrapper">
+            <div id="start-cover" onclick="toggleEngineCover()">
+              <span>FLIP</span>
+            </div>
+            <button id="btn-engine" onclick="toggleEngine()">
+              START<br />ENGINE
+            </button>
+          </div>
+
+          <div class="mode-selector">
+            <button
+              class="mode-btn active"
+              id="mode-strada"
+              onclick="setDriveMode('STRADA')"
+            >
+              STRADA
+            </button>
+            <button
+              class="mode-btn"
+              id="mode-sport"
+              onclick="setDriveMode('SPORT')"
+            >
+              SPORT
+            </button>
+            <button
+              class="mode-btn"
+              id="mode-corsa"
+              onclick="setDriveMode('CORSA')"
+            >
+              CORSA
+            </button>
+          </div>
+        </div>
+
+        <!-- Center panel: Digital hexagonal dial -->
+        <div class="dash-panel center-panel" id="panel-center">
+          <div class="hex-gauge">
+            <svg viewBox="0 0 440 190" width="100%" height="100%">
+              <!-- Outer hexagon border -->
+              <polygon
+                points="50,175 100,20 340,20 390,175"
+                fill="none"
+                stroke="#3f3f46"
+                stroke-width="2"
+              />
+              <!-- Gauge back track -->
+              <path
+                d="M 80 150 A 150 150 0 0 1 360 150"
+                fill="none"
+                stroke="#18181b"
+                stroke-width="14"
+                stroke-linecap="round"
+              />
+              <!-- Dynamic RPM Fill Bar -->
+              <path
+                id="rpm-bar"
+                d="M 80 150 A 150 150 0 0 1 360 150"
+                fill="none"
+                stroke="url(#rpm-grad)"
+                stroke-width="14"
+                stroke-linecap="round"
+                stroke-dasharray="880"
+                stroke-dashoffset="880"
+              />
+
+              <!-- RPM Gradients -->
+              <defs>
+                <linearGradient id="rpm-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#3b82f6" />
+                  <stop offset="55%" stop-color="#3b82f6" />
+                  <stop offset="75%" stop-color="#f59e0b" />
+                  <stop offset="90%" stop-color="#ef4444" />
+                  <stop offset="100%" stop-color="#b91c1c" />
+                </linearGradient>
+              </defs>
+
+              <!-- Speed text -->
+              <text
+                x="220"
+                y="112"
+                class="speed-num"
+                text-anchor="middle"
+                id="speedo-val"
+              >
+                0
+              </text>
+              <text x="220" y="130" class="speed-unit" text-anchor="middle">
+                MPH
+              </text>
+
+              <!-- Gear display -->
+              <text
+                x="220"
+                y="55"
+                class="gear-val"
+                text-anchor="middle"
+                id="gear-val"
+              >
+                P
+              </text>
+
+              <!-- RPM gauge numbering -->
+              <text x="80" y="170" class="rpm-label" text-anchor="middle">
+                0
+              </text>
+              <text x="96" y="115" class="rpm-label" text-anchor="middle">
+                2
+              </text>
+              <text x="145" y="70" class="rpm-label" text-anchor="middle">
+                4
+              </text>
+              <text x="220" y="50" class="rpm-label" text-anchor="middle">
+                6
+              </text>
+              <text x="295" y="70" class="rpm-label" text-anchor="middle">
+                8
+              </text>
+              <text
+                x="344"
+                y="115"
+                class="rpm-label"
+                text-anchor="middle"
+                fill="#ef4444"
+              >
+                10
+              </text>
+              <text
+                x="360"
+                y="170"
+                class="rpm-label"
+                text-anchor="middle"
+                fill="#ef4444"
+              >
+                12
+              </text>
+              <text x="220" y="180" class="rpm-label-unit" text-anchor="middle">
+                RPM x1000
+              </text>
+            </svg>
+
+            <!-- Status Indicator Panel -->
+            <div class="dash-indicators">
+              <span
+                id="ind-headlight"
+                class="indicator active"
+                title="Headlights ON"
+                >💡</span
+              >
+              <span
+                id="ind-tcs"
+                class="indicator"
+                title="Traction Control Active"
+                >⚡</span
+              >
+              <span
+                id="ind-engine"
+                class="indicator active"
+                title="Engine Check Warning"
+                >🔧</span
+              >
+              <span
+                id="ind-handbrake"
+                class="indicator active"
+                title="Handbrake Engaged"
+                >🅿️</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Right panel: steering, map, camera toggles -->
+        <div class="dash-panel right-panel" id="panel-right">
+          <!-- Steering wheel graphic -->
+          <div class="steering-wheel-container">
+            <svg
+              id="steering-wheel"
+              viewBox="0 0 100 100"
+              width="80"
+              height="80"
+            >
+              <circle
+                cx="50"
+                cy="50"
+                r="46"
+                fill="none"
+                stroke="#27272a"
+                stroke-width="6"
+              />
+              <circle
+                cx="50"
+                cy="50"
+                r="40"
+                fill="none"
+                stroke="#111115"
+                stroke-width="4"
+              />
+              <path
+                d="M 12 50 L 88 50 M 50 50 L 50 88"
+                stroke="#18181b"
+                stroke-width="8"
+                stroke-linecap="round"
+              />
+              <!-- Spokes carbon accent -->
+              <path
+                d="M 15 50 L 35 50 M 65 50 L 85 50 M 50 55 L 50 82"
+                stroke="#2c3e50"
+                stroke-width="4"
+              />
+              <circle
+                cx="50"
+                cy="50"
+                r="12"
+                fill="#c29b38"
+                stroke="#000"
+                stroke-width="1.5"
+              />
+              <!-- Bull outline gold badge -->
+              <path
+                d="M 48 48 L 52 48 L 53 52 L 47 52 Z M 46 45 Q 49 47 48 48 M 54 45 Q 51 47 52 48"
+                stroke="#111"
+                stroke-width="1"
+                fill="#fff"
+              />
+            </svg>
+          </div>
+
+          <!-- Buttons -->
+          <div class="action-buttons">
+            <button id="btn-camera" class="action-btn" onclick="cycleCamera()">
+              CAM
+            </button>
+            <button
+              id="btn-underglow"
+              class="action-btn active"
+              onclick="toggleUnderglow()"
+            >
+              NEON
+            </button>
+            <button
+              id="btn-sound"
+              class="action-btn"
+              onclick="toggleSoundBtn()"
+            >
+              MUTE
+            </button>
+          </div>
+
+          <!-- Minimap GPS panel -->
+          <div id="mini-map-container">
+            <canvas id="mini-map" width="110" height="110"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Speech bubble floating container -->
+    <div id="speech-container"></div>
+
+    <!-- Three.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+
+    <script src="assets/car.js"></script>
+
+    <script src="assets/three.js"> </script>
+    <script>
+      // ...existing code...
+      (function extendCity() {
+        // safe guards
+        if (typeof scene === "undefined") return;
+
+        // 1) Expand ground
+        try {
+          if (typeof turfGround !== "undefined") {
+            turfGround.geometry.dispose();
+            turfGround.geometry = new THREE.PlaneGeometry(14000, 14000);
+            turfGround.rotation.x = -Math.PI / 2;
+            turfGround.receiveShadow = true;
+          }
+        } catch (e) {
+          console.warn("Could not resize turfGround:", e);
+        }
+
+        // 2) New road coords (add only if not present)
+        const extraRoads = [-1800, -1500, 1500, 1800];
+        extraRoads.forEach((coord) => {
+          if (!roadCoords.includes(coord)) roadCoords.push(coord);
+        });
+
+        // 3) Spawn extended roads & intersections (uses existing roadMaterialV/H, crosswalkTex, createTrafficLight)
+        extraRoads.forEach((coord) => {
+          // vertical
+          const roadV = new THREE.Mesh(
+            new THREE.BoxGeometry(60, 0.2, 14000),
+            roadMaterialV,
+          );
+          roadV.position.set(coord, 0.1, 0);
+          roadV.receiveShadow = true;
+          scene.add(roadV);
+
+          // horizontal
+          const roadH = new THREE.Mesh(
+            new THREE.BoxGeometry(14000, 0.2, 60),
+            roadMaterialH,
+          );
+          roadH.position.set(0, 0.1, coord);
+          roadH.receiveShadow = true;
+          scene.add(roadH);
+
+          // light crosswalks and traffic lights at new intersections (light detail to keep perf)
+          const sampleIntersections = roadCoords.filter(
+            (c) => Math.abs(c) <= 1800,
+          );
+          sampleIntersections.forEach((ix) => {
+            const cw = new THREE.Mesh(
+              new THREE.PlaneGeometry(38, 8),
+              new THREE.MeshStandardMaterial({
+                map: crosswalkTex,
+                roughness: 0.8,
+              }),
+            );
+            cw.rotation.x = -Math.PI / 2;
+            cw.rotation.z = Math.PI / 2;
+            cw.position.set(coord, 0.22, ix - 34);
+            scene.add(cw);
+
+            // add a traffic light on the corner (createTrafficLight exists)
+            if (typeof createTrafficLight === "function") {
+              createTrafficLight(coord - 34, ix - 34, "NS");
+            }
+          });
+        });
+
+        // 4) Themed districts (helper functions)
+        function createWaterfront(x, z) {
+          const waterMat = new THREE.MeshStandardMaterial({
+            color: 0x1e90ff,
+            roughness: 0.7,
+            metalness: 0.05,
+            transparent: true,
+            opacity: 0.95,
+          });
+          const water = new THREE.Mesh(
+            new THREE.BoxGeometry(500, 0.2, 500),
+            waterMat,
+          );
+          water.position.set(x, 0.12, z);
+          scene.add(water);
+          colliders.push({ type: "circle", x: x, z: z, r: 240 });
+
+          // docks
+          const dockMat = new THREE.MeshStandardMaterial({
+            color: 0x6b3e26,
+            roughness: 0.95,
+          });
+          for (let i = -2; i <= 2; i++) {
+            const dock = new THREE.Mesh(
+              new THREE.BoxGeometry(40, 0.8, 12),
+              dockMat,
+            );
+            dock.position.set(x + i * 60, 0.5, z - 180);
+            scene.add(dock);
+            colliders.push({
+              type: "box",
+              minX: dock.position.x - 20,
+              maxX: dock.position.x + 20,
+              minZ: dock.position.z - 6,
+              maxZ: dock.position.z + 6,
+            });
+          }
+        }
+
+        function createIndustrialArea(x, z) {
+          const factoryMat = new THREE.MeshStandardMaterial({
+            color: 0x33363b,
+            roughness: 0.85,
+          });
+          const factory = new THREE.Mesh(
+            new THREE.BoxGeometry(360, 36, 240),
+            factoryMat,
+          );
+          factory.position.set(x, 18.3, z);
+          factory.castShadow = true;
+          scene.add(factory);
+          colliders.push({
+            type: "box",
+            minX: x - 180,
+            maxX: x + 180,
+            minZ: z - 120,
+            maxZ: z + 120,
+          });
+
+          // stacks
+          const stackMat = new THREE.MeshStandardMaterial({
+            color: 0x4b4b4b,
+            roughness: 0.8,
+          });
+          for (let s = 0; s < 4; s++) {
+            const st = new THREE.Mesh(
+              new THREE.CylinderGeometry(4, 4, 40, 12),
+              stackMat,
+            );
+            st.position.set(x - 100 + s * 70, 28, z + 70);
+            scene.add(st);
+          }
+        }
+
+        function createAirport(x, z) {
+          const runwayMat = new THREE.MeshStandardMaterial({
+            color: 0x111214,
+            roughness: 0.95,
+          });
+          const runway = new THREE.Mesh(
+            new THREE.BoxGeometry(420, 0.2, 4000),
+            runwayMat,
+          );
+          runway.position.set(x, 0.15, z);
+          runway.receiveShadow = true;
+          scene.add(runway);
+          colliders.push({
+            type: "box",
+            minX: x - 210,
+            maxX: x + 210,
+            minZ: z - 2000,
+            maxZ: z + 2000,
+          });
+
+          const terminal = new THREE.Mesh(
+            new THREE.BoxGeometry(240, 24, 90),
+            new THREE.MeshStandardMaterial({ color: 0xdbeafe, roughness: 0.6 }),
+          );
+          terminal.position.set(x, 12.4, z + 620);
+          scene.add(terminal);
+          colliders.push({
+            type: "box",
+            minX: terminal.position.x - 120,
+            maxX: terminal.position.x + 120,
+            minZ: terminal.position.z - 45,
+            maxZ: terminal.position.z + 45,
+          });
+        }
+
+        // 5) Place themed districts at new coordinates and register blocks
+        const addDistrict = (fn, bx, bz) => {
+          const x = bx;
+          const z = bz;
+          fn(x, z);
+          blocksList.push({ bx: x / 300, bz: z / 300, x: x, z: z });
+        };
+
+        // Waterfront (NE)
+        addDistrict(createWaterfront, 1650, 1650);
+        // Industrial (NW)
+        addDistrict(createIndustrialArea, -1650, 1650);
+        // Airport (E)
+        addDistrict(createAirport, 1950, 0);
+
+        // 6) Move outward boundary walls (add extra layer)
+        if (typeof createBoundaryWall === "function") {
+          createBoundaryWall(0, -1920, 3840, 8);
+          createBoundaryWall(0, 1920, 3840, 8);
+          createBoundaryWall(-1920, 0, 8, 3840);
+          createBoundaryWall(1920, 0, 8, 3840);
+        }
+
+        // 7) Optional: spawn a few extra traffic cars and NPCs near new districts
+        for (let i = 0; i < 10; i++) {
+          const rx = (Math.random() - 0.5) * 300 + (i % 2 === 0 ? 1650 : -1650);
+          const rz = (Math.random() - 0.5) * 300 + (i % 3 === 0 ? 1650 : 0);
+          spawnTrafficCar(
+            rx + 12,
+            rz + (Math.random() - 0.5) * 40,
+            ["N", "S", "E", "W"][i % 4],
+          );
+        }
+
+        // spawn simple pedestrians around new blocks
+        blocksList.slice(-6).forEach((b) => {
+          for (let p = 0; p < 3; p++) {
+            createPedestrian(
+              b.x + (Math.random() - 0.5) * 80,
+              b.z + (Math.random() - 0.5) * 80,
+              b,
+            );
+          }
+        });
+
+        console.log(
+          "City extension loaded: extra roads and themed districts added.",
+        );
+      })();
+      // ...existing code...
+    </script>
+  </body>
+</html>

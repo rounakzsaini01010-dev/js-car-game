@@ -1,0 +1,519 @@
+ * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        overflow: hidden;
+        background: #87ceeb;
+        font-family: "Rajdhani", Arial, sans-serif;
+        user-select: none;
+      }
+
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      /* HUD Container Overlay */
+      #hud-container {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        pointer-events: none;
+        z-index: 100;
+        box-sizing: border-box;
+      }
+
+      /* Top Status Bar */
+      #top-bar {
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-family: "Orbitron", sans-serif;
+        font-weight: 900;
+        font-size: 24px;
+        color: #fff;
+        letter-spacing: 4px;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+      }
+
+      .logo span {
+        color: #ff5500;
+        text-shadow: 0 0 15px rgba(255, 85, 0, 0.6);
+      }
+
+      .controls-info {
+        display: flex;
+        gap: 20px;
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.85);
+        background: rgba(10, 10, 15, 0.65);
+        padding: 10px 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .controls-info span {
+        position: relative;
+      }
+
+      .controls-info span:not(:last-child)::after {
+        content: "|";
+        margin-left: 15px;
+        color: rgba(255, 85, 0, 0.4);
+      }
+
+      /* Speedometer & Instruments Dashboard */
+      #dashboard {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 0 40px 30px 40px;
+        height: 220px;
+      }
+
+      .dash-panel {
+        background: rgba(12, 12, 16, 0.88);
+        border: 2px solid #3f3f46;
+        border-radius: 18px;
+        backdrop-filter: blur(15px);
+        pointer-events: auto;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        transition: border-color 0.3s;
+      }
+
+      .left-panel {
+        width: 200px;
+        height: 170px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        padding: 15px;
+        border-color: #ff5500;
+      }
+
+      .center-panel {
+        width: 440px;
+        height: 190px;
+        position: relative;
+        border-radius: 24px 24px 0 0;
+        border-bottom: none;
+        overflow: hidden;
+        border-color: #ff5500;
+      }
+
+      .right-panel {
+        width: 340px;
+        height: 170px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-color: #ff5500;
+      }
+
+      /* Engine start button */
+      .engine-start-wrapper {
+        position: relative;
+        width: 76px;
+        height: 76px;
+      }
+
+      #btn-engine {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #ff0055 0%, #990022 100%);
+        border: 5px solid #27272a;
+        color: white;
+        font-family: "Orbitron", sans-serif;
+        font-size: 10px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 0 15px rgba(255, 0, 85, 0.5);
+        transition:
+          transform 0.1s,
+          box-shadow 0.2s;
+        text-align: center;
+        line-height: 1.2;
+      }
+
+      #btn-engine:active {
+        transform: scale(0.96);
+      }
+
+      #start-cover {
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        width: 82px;
+        height: 82px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.85);
+        border: 3px solid #ef4444;
+        box-shadow:
+          inset 0 0 12px rgba(0, 0, 0, 0.6),
+          0 4px 10px rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 800;
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        transform-origin: top center;
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      #start-cover.open {
+        transform: rotateX(120deg) translateY(-25px);
+        pointer-events: none;
+      }
+
+      /* Mode selector */
+      .mode-selector {
+        display: flex;
+        gap: 6px;
+        background: #18181b;
+        padding: 4px;
+        border-radius: 8px;
+        border: 1px solid #27272a;
+      }
+
+      .mode-btn {
+        font-family: "Orbitron", sans-serif;
+        font-size: 10px;
+        font-weight: 900;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        color: #71717a;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.25s;
+      }
+
+      .mode-btn:hover {
+        color: #e4e4e7;
+      }
+
+      .mode-btn.active {
+        color: #000;
+      }
+
+      #mode-strada.active {
+        background: #3b82f6;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+      }
+      #mode-sport.active {
+        background: #f97316;
+        box-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
+      }
+      #mode-corsa.active {
+        background: #ef4444;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+      }
+
+      /* Speedometer gauge styles */
+      .hex-gauge {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      .speed-num {
+        font-family: "Orbitron", sans-serif;
+        font-weight: 900;
+        font-size: 56px;
+        fill: #fff;
+        transition: fill 0.3s;
+      }
+
+      .speed-unit {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 800;
+        font-size: 12px;
+        fill: #a1a1aa;
+      }
+
+      .gear-val {
+        font-family: "Orbitron", sans-serif;
+        font-weight: 900;
+        font-size: 28px;
+        fill: #ff5500;
+        text-shadow: 0 0 10px rgba(255, 85, 0, 0.5);
+      }
+
+      .rpm-label {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 700;
+        font-size: 11px;
+        fill: #52525b;
+      }
+
+      .rpm-label-unit {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 800;
+        font-size: 9px;
+        fill: #3f3f46;
+      }
+
+      /* Flash Red warning for rev limits */
+      .rev-limit-flash {
+        animation: flash-red 0.15s infinite alternate;
+      }
+
+      @keyframes flash-red {
+        from {
+          fill: #fff;
+        }
+        to {
+          fill: #ef4444;
+        }
+      }
+
+      /* Indicators */
+      .dash-indicators {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 20px;
+        background: #09090b;
+        padding: 4px 15px;
+        border-radius: 10px;
+        border: 1px solid #27272a;
+      }
+
+      .indicator {
+        font-size: 14px;
+        opacity: 0.15;
+        transition:
+          opacity 0.2s,
+          color 0.2s;
+        filter: grayscale(1);
+      }
+
+      .indicator.active {
+        opacity: 1;
+        filter: none;
+      }
+
+      #ind-headlight.active {
+        filter: drop-shadow(0 0 5px #22c55e);
+      }
+      #ind-tcs.active {
+        filter: drop-shadow(0 0 5px #eab308);
+      }
+      #ind-engine.active {
+        filter: drop-shadow(0 0 5px #ef4444);
+      }
+      #ind-handbrake.active {
+        filter: drop-shadow(0 0 5px #ef4444);
+      }
+
+      /* Right Panel Elements */
+      .steering-wheel-container {
+        width: 82px;
+        height: 82px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      #steering-wheel {
+        transform-origin: center center;
+        transition: transform 0.06s ease-out;
+      }
+
+      .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .action-btn {
+        font-family: "Orbitron", sans-serif;
+        font-size: 9px;
+        font-weight: 800;
+        width: 56px;
+        height: 25px;
+        border: 1px solid #27272a;
+        border-radius: 6px;
+        background: #18181b;
+        color: #a1a1aa;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .action-btn:hover {
+        background: #27272a;
+        color: #fff;
+      }
+
+      .action-btn.active {
+        background: #ff5500;
+        color: #000;
+        border-color: transparent;
+        box-shadow: 0 0 10px rgba(255, 85, 0, 0.5);
+      }
+
+      #mini-map-container {
+        width: 110px;
+        height: 110px;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 2px solid #27272a;
+        background: #09090b;
+      }
+
+      #mini-map {
+        display: block;
+      }
+
+      /* HTML overlay for Speech Bubbles */
+      #speech-container {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 90;
+      }
+
+      .speech-bubble {
+        position: absolute;
+        transform: translate(-50%, -100%);
+        background: #ffffff;
+        border: 3px solid #000;
+        border-radius: 12px;
+        padding: 6px 12px;
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 800;
+        font-size: 16px;
+        color: #000;
+        pointer-events: none;
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.15);
+        white-space: nowrap;
+        z-index: 1000;
+        animation: pop-bubble 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      @keyframes pop-bubble {
+        from {
+          transform: translate(-50%, -80%) scale(0.6);
+          opacity: 0;
+        }
+        to {
+          transform: translate(-50%, -100%) scale(1);
+          opacity: 1;
+        }
+      }
+
+      .speech-bubble::after {
+        content: "";
+        position: absolute;
+        bottom: -11px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px;
+        border-style: solid;
+        border-color: #ffffff transparent transparent transparent;
+      }
+
+      .speech-bubble::before {
+        content: "";
+        position: absolute;
+        bottom: -17px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 8px;
+        border-style: solid;
+        border-color: #000 transparent transparent transparent;
+        z-index: -1;
+      }
+
+      /* Audio Startup Screen */
+      #sound-onboarding {
+        position: absolute;
+        inset: 0;
+        background: rgba(9, 9, 11, 0.95);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        z-index: 1000;
+        transition: opacity 0.5s;
+      }
+
+      .onboard-title {
+        font-family: "Orbitron", sans-serif;
+        font-weight: 900;
+        font-size: 32px;
+        letter-spacing: 6px;
+        color: #fff;
+        margin-bottom: 20px;
+        text-shadow: 0 0 20px rgba(255, 85, 0, 0.5);
+      }
+
+      .onboard-desc {
+        font-size: 18px;
+        color: #a1a1aa;
+        margin-bottom: 40px;
+        text-align: center;
+        max-width: 500px;
+        line-height: 1.6;
+      }
+
+      .btn-onboard {
+        font-family: "Orbitron", sans-serif;
+        font-size: 14px;
+        font-weight: 900;
+        padding: 16px 36px;
+        border-radius: 12px;
+        border: 2px solid #ff5500;
+        background: transparent;
+        color: #ff5500;
+        cursor: pointer;
+        letter-spacing: 2px;
+        box-shadow: 0 0 20px rgba(255, 85, 0, 0.2);
+        transition: all 0.3s;
+      }
+
+      .btn-onboard:hover {
+        background: #ff5500;
+        color: #000;
+        box-shadow: 0 0 30px rgba(255, 85, 0, 0.6);
+      }
+
+      .skip-onboard {
+        margin-top: 15px;
+        color: #52525b;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .skip-onboard:hover {
+        color: #a1a1aa;
+      }
